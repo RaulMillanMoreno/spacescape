@@ -13,29 +13,29 @@ import 'audio_player_component.dart';
 
 import '../models/enemy_data.dart';
 
-// This class represent an enemy component.
+// Esta clase representa un componente enemigo.
 class Enemy extends SpriteComponent
     with CollisionCallbacks, HasGameReference<SpacescapeGame> {
-  // The speed of this enemy.
+  // La velocidad de este enemigo.
   double _speed = 250;
 
-  // This direction in which this Enemy will move.
-  // Defaults to vertically downwards.
+  // La dirección en la que este enemigo se moverá.
+  // Por defecto, hacia abajo verticalmente.
   Vector2 moveDirection = Vector2(0, 1);
 
-  // Controls for how long enemy should be frozen.
+  // Controla cuánto tiempo debe estar congelado el enemigo.
   late Timer _freezeTimer;
 
-  // Holds an object of Random class to generate random numbers.
+  // Contiene un objeto de la clase Random para generar números aleatorios.
   final _random = Random();
 
-  // The data required to create this enemy.
+  // Los datos necesarios para crear este enemigo.
   final EnemyData enemyData;
 
-  // Represents health of this enemy.
+  // Representa la salud de este enemigo.
   int _hitPoints = 10;
 
-  // To display health in game world.
+  // Para mostrar la salud en el mundo del juego.
   final _hpText = TextComponent(
     text: '10 HP',
     textRenderer: TextPaint(
@@ -47,13 +47,13 @@ class Enemy extends SpriteComponent
     ),
   );
 
-  // This method generates a random vector with its angle
-  // between from 0 and 360 degrees.
+  // Este método genera un vector aleatorio con su ángulo
+  // entre 0 y 360 grados.
   Vector2 getRandomVector() {
     return (Vector2.random(_random) - Vector2.random(_random)) * 500;
   }
 
-  // Returns a random direction vector with slight angle to +ve y axis.
+  // Devuelve un vector de dirección aleatorio con un ligero ángulo hacia el eje y positivo.
   Vector2 getRandomDirection() {
     return (Vector2.random(_random) - Vector2(0.5, -1)).normalized();
   }
@@ -64,19 +64,19 @@ class Enemy extends SpriteComponent
     required super.position,
     required super.size,
   }) {
-    // Rotates the enemy component by 180 degrees. This is needed because
-    // all the sprites initially face the same direct, but we want enemies to be
-    // moving in opposite direction.
+    // Rota el componente enemigo 180 grados. Esto es necesario porque
+    // todos los sprites inicialmente miran en la misma dirección, pero queremos que los enemigos
+    // se muevan en la dirección opuesta.
     angle = pi;
 
-    // Set the current speed from enemyData.
+    // Establece la velocidad actual desde enemyData.
     _speed = enemyData.speed;
 
-    // Set hitpoint to correct value from enemyData.
+    // Establece los puntos de vida al valor correcto desde enemyData.
     _hitPoints = enemyData.level * 10;
     _hpText.text = '$_hitPoints HP';
 
-    // Sets freeze time to 2 seconds. After 2 seconds speed will be reset.
+    // Establece el tiempo de congelación en 2 segundos. Después de 2 segundos, la velocidad se restablecerá.
     _freezeTimer = Timer(
       2,
       onTick: () {
@@ -84,7 +84,7 @@ class Enemy extends SpriteComponent
       },
     );
 
-    // If this enemy can move horizontally, randomize the move direction.
+    // Si este enemigo puede moverse horizontalmente, aleatoriza la dirección de movimiento.
     if (enemyData.hMove) {
       moveDirection = getRandomDirection();
     }
@@ -94,8 +94,8 @@ class Enemy extends SpriteComponent
   void onMount() {
     super.onMount();
 
-    // Adding a circular hitbox with radius as 0.8 times
-    // the smallest dimension of this components size.
+    // Agrega una caja de colisión circular con un radio de 0.8 veces
+    // la dimensión más pequeña del tamaño de este componente.
     final shape = CircleHitbox.relative(
       0.8,
       parentSize: size,
@@ -104,15 +104,15 @@ class Enemy extends SpriteComponent
     );
     add(shape);
 
-    // As current component is already rotated by pi radians,
-    // the text component needs to be again rotated by pi radians
-    // so that it is displayed correctly.
+    // Como el componente actual ya está rotado por pi radianes,
+    // el componente de texto necesita ser rotado nuevamente por pi radianes
+    // para que se muestre correctamente.
     _hpText.angle = pi;
 
-    // To place the text just behind the enemy.
+    // Para colocar el texto justo detrás del enemigo.
     _hpText.position = Vector2(50, 80);
 
-    // Add as child of current component.
+    // Agregar como hijo del componente actual.
     add(_hpText);
   }
 
@@ -121,18 +121,18 @@ class Enemy extends SpriteComponent
     super.onCollision(intersectionPoints, other);
 
     if (other is Bullet) {
-      // If the other Collidable is a Bullet,
-      // reduce health by level of bullet times 10.
+      // Si el otro colisionador es una bala,
+      // reduce la salud por el nivel de la bala multiplicado por 10.
       _hitPoints -= other.level * 10;
     } else if (other is Player) {
-      // If the other Collidable is Player, destroy.
+      // Si el otro colisionador es el jugador, destrúyelo.
       destroy();
     }
   }
 
-  // This method will destroy this enemy.
+  // Este método destruirá este enemigo.
   void destroy() {
-    // Ask audio player to play enemy destroy effect.
+    // Pide al reproductor de audio que reproduzca el efecto de destrucción del enemigo.
     game.addCommand(
       Command<AudioPlayerComponent>(
         action: (audioPlayer) {
@@ -143,33 +143,32 @@ class Enemy extends SpriteComponent
 
     removeFromParent();
 
-    // Before dying, register a command to increase
-    // player's score by 1.
+    // Antes de morir, registra un comando para aumentar
+    // la puntuación del jugador en 1.
     final command = Command<Player>(
       action: (player) {
-        // Use the correct killPoint to increase player's score.
+        // Usa el valor correcto de killPoint para aumentar la puntuación del jugador.
         player.addToScore(enemyData.killPoint);
       },
     );
     game.addCommand(command);
 
-    // Generate 20 white circle particles with random speed and acceleration,
-    // at current position of this enemy. Each particles lives for exactly
-    // 0.1 seconds and will get removed from the game world after that.
+    // Genera 20 partículas de círculo blanco con velocidad y aceleración aleatorias,
+    // en la posición actual de este enemigo. Cada partícula vive exactamente
+    // 0.1 segundos y será eliminada del mundo del juego después de eso.
     final particleComponent = ParticleSystemComponent(
       particle: Particle.generate(
         count: 20,
         lifespan: 0.1,
-        generator:
-            (i) => AcceleratedParticle(
-              acceleration: getRandomVector(),
-              speed: getRandomVector(),
-              position: position.clone(),
-              child: CircleParticle(
-                radius: 2,
-                paint: Paint()..color = Colors.white,
-              ),
-            ),
+        generator: (i) => AcceleratedParticle(
+          acceleration: getRandomVector(),
+          speed: getRandomVector(),
+          position: position.clone(),
+          child: CircleParticle(
+            radius: 2,
+            paint: Paint()..color = Colors.white,
+          ),
+        ),
       ),
     );
 
@@ -180,31 +179,31 @@ class Enemy extends SpriteComponent
   void update(double dt) {
     super.update(dt);
 
-    // Sync-up text component and value of hitPoints.
+    // Sincroniza el componente de texto y el valor de los puntos de vida.
     _hpText.text = '$_hitPoints HP';
 
-    // If hitPoints have reduced to zero,
-    // destroy this enemy.
+    // Si los puntos de vida se han reducido a cero,
+    // destruye este enemigo.
     if (_hitPoints <= 0) {
       destroy();
     }
 
     _freezeTimer.update(dt);
 
-    // Update the position of this enemy using its speed and delta time.
+    // Actualiza la posición de este enemigo usando su velocidad y el tiempo delta.
     position += moveDirection * _speed * dt;
 
-    // If the enemy leaves the screen, destroy it.
+    // Si el enemigo sale de la pantalla, destrúyelo.
     if (position.y > game.fixedResolution.y) {
       removeFromParent();
     } else if ((position.x < size.x / 2) ||
         (position.x > (game.fixedResolution.x - size.x / 2))) {
-      // Enemy is going outside vertical screen bounds, flip its x direction.
+      // El enemigo está saliendo de los límites verticales de la pantalla, invierte su dirección x.
       moveDirection.x *= -1;
     }
   }
 
-  // Pauses enemy for 2 seconds when called.
+  // Pausa al enemigo durante 2 segundos cuando se llama.
   void freeze() {
     _speed = 0;
     _freezeTimer.stop();
