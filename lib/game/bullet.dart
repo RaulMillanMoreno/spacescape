@@ -1,5 +1,6 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
 
 import 'enemy.dart';
 
@@ -13,13 +14,17 @@ class Bullet extends SpriteComponent with CollisionCallbacks {
 
   // Level of this bullet. Essentially represents the
   // level of spaceship that fired this bullet.
-  final int level;
+  int level;
+  int damageMultiplier;
+  Color color;
 
   Bullet({
     required super.sprite,
     required super.position,
     required super.size,
-    required this.level,
+    this.level = 1,
+    this.damageMultiplier = 1,
+    this.color = Colors.white,
   });
 
   @override
@@ -59,5 +64,10 @@ class Bullet extends SpriteComponent with CollisionCallbacks {
     if (position.y < 0) {
       removeFromParent();
     }
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
   }
 }

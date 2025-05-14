@@ -43,6 +43,24 @@ class Player extends SpriteComponent
   // Controls for how long multi-bullet power up is active.
   late Timer _powerUpTimer;
 
+  // If true, shield is active.
+  bool _shieldActive = false;
+
+  // Controls for how long shield is active.
+  late Timer _shieldTimer;
+
+  // If true, speed power-up is active.
+  bool _speedActive = false;
+
+  // Controls for how long speed power-up is active.
+  late Timer _speedTimer;
+
+  // If true, damage boost is active.
+  bool _damageBoostActive = false;
+
+  // Controls for how long damage boost is active.
+  late Timer _damageBoostTimer;
+
   // Holds an object of Random class to generate random numbers.
   final _random = Random();
 
@@ -66,6 +84,33 @@ class Player extends SpriteComponent
       4,
       onTick: () {
         _shootMultipleBullets = false;
+      },
+    );
+
+    // Sets shield timer to 10 seconds. After 10 seconds,
+    // shield will get deactivated.
+    _shieldTimer = Timer(
+      10,
+      onTick: () {
+        _shieldActive = false;
+      },
+    );
+
+    // Sets speed timer to 5 seconds. After 5 seconds,
+    // speed power-up will get deactivated.
+    _speedTimer = Timer(
+      5,
+      onTick: () {
+        _speedActive = false;
+      },
+    );
+
+    // Sets damage boost timer to 10 seconds. After 10 seconds,
+    // damage boost will get deactivated.
+    _damageBoostTimer = Timer(
+      10,
+      onTick: () {
+        _damageBoostActive = false;
       },
     );
   }
@@ -99,6 +144,10 @@ class Player extends SpriteComponent
       //     PerlinNoiseEffectController(duration: 1),
       //   ),
       // );
+      if (_shieldActive) {
+        // If shield is active, ignore the damage.
+        return;
+      }
 
       _health -= 10;
       if (_health <= 0) {
@@ -154,17 +203,23 @@ class Player extends SpriteComponent
     super.update(dt);
 
     _powerUpTimer.update(dt);
+    _shieldTimer.update(dt);
+    _speedTimer.update(dt);
+    _damageBoostTimer.update(dt);
+
+    double speedMultiplier = _speedActive ? 2.0 : 1.0;
 
     // Increment the current position of player by (speed * delta time) along moveDirection.
     // Delta time is the time elapsed since last update. For devices with higher frame rates, delta time
     // will be smaller and for devices with lower frame rates, it will be larger. Multiplying speed with
     // delta time ensure that player speed remains same irrespective of the device FPS.
     if (!joystick.delta.isZero()) {
-      position.add(joystick.relativeDelta * _spaceship.speed * dt);
+      position.add(
+          joystick.relativeDelta * _spaceship.speed * speedMultiplier * dt);
     }
 
     if (!keyboardDelta.isZero()) {
-      position.add(keyboardDelta * _spaceship.speed * dt);
+      position.add(keyboardDelta * _spaceship.speed * speedMultiplier * dt);
     }
 
     // Clamp position of player such that the player sprite does not go outside the screen size.
@@ -175,20 +230,38 @@ class Player extends SpriteComponent
       particle: Particle.generate(
         count: 10,
         lifespan: 0.1,
-        generator:
-            (i) => AcceleratedParticle(
-              acceleration: getRandomVector(),
-              speed: getRandomVector(),
-              position: (position.clone() + Vector2(0, size.y / 3)),
-              child: CircleParticle(
-                radius: 1,
-                paint: Paint()..color = Colors.white,
-              ),
-            ),
+        generator: (i) => AcceleratedParticle(
+          acceleration: getRandomVector(),
+          speed: getRandomVector(),
+          position: (position.clone() + Vector2(0, size.y / 3)),
+          child: CircleParticle(
+            radius: 1,
+            paint: Paint()
+              ..color = _speedActive
+                  ? const Color(0xFF2196F3) // Azul
+                  : Colors.white,
+          ),
+        ),
       ),
     );
 
     game.world.add(particleComponent);
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+
+    if (_shieldActive) {
+      final paint = Paint()
+        ..color =
+            const Color(0xFF87CEEB).withOpacity(0.5); // Azul cielo translúcido
+
+      // Dibuja un semicírculo en la parte superior de la nave
+      final rect = Rect.fromLTWH(0, 0, size.x, size.y);
+      // startAngle = pi, sweepAngle = pi para la mitad superior
+      canvas.drawArc(rect, pi, pi, true, paint);
+    }
   }
 
   void setPlayerData(PlayerData playerData) {
@@ -203,6 +276,10 @@ class Player extends SpriteComponent
       size: Vector2(64, 64),
       position: position.clone(),
       level: _spaceship.level,
+      damageMultiplier: _damageBoostActive ? 3 : 1, // NUEVO
+      color: _damageBoostActive
+          ? const Color(0xFF800000)
+          : Colors.white, // NUEVO (granate)
     );
 
     // Anchor it to center and add to game world.
@@ -278,5 +355,25 @@ class Player extends SpriteComponent
     _shootMultipleBullets = true;
     _powerUpTimer.stop();
     _powerUpTimer.start();
+  }
+
+  // Activates the shield for 10 seconds.
+  void activateShield() {
+    _shieldActive = true;
+    _shieldTimer.stop();
+    _shieldTimer.start();
+  }
+
+  // Activates the speed power-up for 5 seconds.
+  void activateSpeed() {
+    _speedActive = true;
+    _speedTimer.stop();
+    _speedTimer.start();
+  }
+
+  void activateDamageBoost() {
+    _damageBoostActive = true;
+    _damageBoostTimer.stop();
+    _damageBoostTimer.start();
   }
 }

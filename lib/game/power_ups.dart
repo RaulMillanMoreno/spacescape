@@ -10,7 +10,7 @@ import 'power_up_manager.dart';
 import 'audio_player_component.dart';
 
 // An abstract class which represents power ups in this game.
-/// See [Freeze], [Health], [MultiFire] and [Nuke] for example.
+/// See [Freeze], [Health], [MultiFire], [Nuke], and [Shield] for example.
 abstract class PowerUp extends SpriteComponent
     with HasGameReference<SpacescapeGame>, CollisionCallbacks {
   // Controls how long the power up should be visible
@@ -171,6 +171,66 @@ class MultiFire extends PowerUp {
     final command = Command<Player>(
       action: (player) {
         player.shootMultipleBullets();
+      },
+    );
+    game.addCommand(command);
+  }
+}
+
+// This power up activates a shield for the player.
+class Shield extends PowerUp {
+  Shield({super.position, super.size});
+
+  @override
+  Sprite getSprite() {
+    return PowerUpManager.shieldSprite;
+  }
+
+  @override
+  void onActivated() {
+    final command = Command<Player>(
+      action: (player) {
+        player.activateShield();
+      },
+    );
+    game.addCommand(command);
+  }
+}
+
+// This power up activates speed for the player.
+class Speed extends PowerUp {
+  Speed({super.position, super.size});
+
+  @override
+  Sprite getSprite() {
+    return PowerUpManager.speedSprite;
+  }
+
+  @override
+  void onActivated() {
+    final command = Command<Player>(
+      action: (player) {
+        player.activateSpeed();
+      },
+    );
+    game.addCommand(command);
+  }
+}
+
+// This power up activates damage boost for the player.
+class Damage extends PowerUp {
+  Damage({super.position, super.size});
+
+  @override
+  Sprite getSprite() {
+    return PowerUpManager.damageSprite;
+  }
+
+  @override
+  void onActivated() {
+    final command = Command<Player>(
+      action: (player) {
+        player.activateDamageBoost();
       },
     );
     game.addCommand(command);

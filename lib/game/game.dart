@@ -71,6 +71,9 @@ class SpacescapeGame extends FlameGame
         'icon_plusSmall.png',
         'multi_fire.png',
         'nuke.png',
+        'shield.png',
+        'speed.png',
+        'damage.png',
       ]);
 
       spriteSheet = SpriteSheet.fromColumnsAndRows(

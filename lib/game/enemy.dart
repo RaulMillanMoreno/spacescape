@@ -122,8 +122,8 @@ class Enemy extends SpriteComponent
 
     if (other is Bullet) {
       // Si el otro colisionador es una bala,
-      // reduce la salud por el nivel de la bala multiplicado por 10.
-      _hitPoints -= other.level * 10;
+      // reduce la salud por el nivel de la bala multiplicado por 10 y multiplicado por el damageMultiplier.
+      _hitPoints -= other.level * 10 * other.damageMultiplier;
     } else if (other is Player) {
       // Si el otro colisionador es el jugador, destrúyelo.
       destroy();
