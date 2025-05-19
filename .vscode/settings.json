@@ -1,4 +1,9 @@
 {
     "license.year": "auto",
-    "license.author": "Shubham Kamble"
+    "license.author": "Shubham Kamble",
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#312E11",
+        "titleBar.activeBackground": "#454117",
+        "titleBar.activeForeground": "#FBFAF2"
+    }
 }
