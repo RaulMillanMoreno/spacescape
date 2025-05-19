@@ -61,6 +61,9 @@ class Player extends SpriteComponent
   // Controls for how long damage boost is active.
   late Timer _damageBoostTimer;
 
+  // Timer for auto-firing bullets
+  late Timer _autoFireTimer;
+
   // Holds an object of Random class to generate random numbers.
   final _random = Random();
 
@@ -113,6 +116,14 @@ class Player extends SpriteComponent
         _damageBoostActive = false;
       },
     );
+
+    _autoFireTimer = Timer(
+      0.6, // Antes era 0.2, ahora es más lento
+      repeat: true,
+      onTick: () {
+        joystickAction();
+      },
+    );
   }
 
   @override
@@ -128,32 +139,20 @@ class Player extends SpriteComponent
       anchor: Anchor.center,
     );
     add(shape);
+    _autoFireTimer.start();
   }
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
 
-    // If other entity is an Enemy, reduce player's health by 10.
     if (other is Enemy) {
-      // Make the camera shake, with custom intensity.
-      // TODO: Investigate how camera shake should be implemented in new camera system.
-      // game.primaryCamera.viewfinder.add(
-      //   MoveByEffect(
-      //     Vector2.all(10),
-      //     PerlinNoiseEffectController(duration: 1),
-      //   ),
-      // );
-      if (_shieldActive) {
-        // If shield is active, ignore the damage.
-        return;
-      }
-
-      _health -= 10;
-      if (_health <= 0) {
-        _health = 0;
-      }
+      // _currentHealth -= 1; // <-- Comenta esta línea para no perder vida
+      // if (_currentHealth <= 0) {
+      //   die(); // <-- Comenta la muerte del jugador
+      // }
     }
+    // ...otros casos...
   }
 
   Vector2 keyboardDelta = Vector2.zero();
@@ -206,6 +205,7 @@ class Player extends SpriteComponent
     _shieldTimer.update(dt);
     _speedTimer.update(dt);
     _damageBoostTimer.update(dt);
+    _autoFireTimer.update(dt);
 
     double speedMultiplier = _speedActive ? 2.0 : 1.0;
 
@@ -271,18 +271,22 @@ class Player extends SpriteComponent
   }
 
   void joystickAction() {
+    final isDamageBoost = _damageBoostActive;
+    final paint = isDamageBoost
+        ? (Paint()
+          ..colorFilter = const ColorFilter.mode(
+              Color.fromARGB(255, 154, 6, 156), BlendMode.modulate))
+        : null;
+
     Bullet bullet = Bullet(
       sprite: game.spriteSheet.getSpriteById(28),
       size: Vector2(64, 64),
       position: position.clone(),
       level: _spaceship.level,
-      damageMultiplier: _damageBoostActive ? 3 : 1, // NUEVO
-      color: _damageBoostActive
-          ? const Color(0xFF800000)
-          : Colors.white, // NUEVO (granate)
+      damageMultiplier: isDamageBoost ? 3 : 1,
+      customPaint: paint,
     );
 
-    // Anchor it to center and add to game world.
     bullet.anchor = Anchor.center;
     game.world.add(bullet);
 
@@ -336,7 +340,7 @@ class Player extends SpriteComponent
   // Resets player score, health and position. Should be called
   // while restarting and exiting the game.
   void reset() {
-    _playerData!.currentScore = 0;
+    // _playerData!.currentScore = 0;
     _health = 100;
     position = game.fixedResolution / 2;
   }

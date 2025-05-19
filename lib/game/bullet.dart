@@ -16,7 +16,7 @@ class Bullet extends SpriteComponent with CollisionCallbacks {
   // level of spaceship that fired this bullet.
   int level;
   int damageMultiplier;
-  Color color;
+  Paint? customPaint;
 
   Bullet({
     required super.sprite,
@@ -24,7 +24,7 @@ class Bullet extends SpriteComponent with CollisionCallbacks {
     required super.size,
     this.level = 1,
     this.damageMultiplier = 1,
-    this.color = Colors.white,
+    this.customPaint,
   });
 
   @override
@@ -68,6 +68,18 @@ class Bullet extends SpriteComponent with CollisionCallbacks {
 
   @override
   void render(Canvas canvas) {
-    super.render(canvas);
+    // Usa el paint personalizado si está activo, si no, el normal
+    if (customPaint != null) {
+      canvas.save();
+      canvas.drawImageRect(
+        sprite!.image,
+        sprite!.srcPosition & sprite!.srcSize,
+        size.toRect(),
+        customPaint!,
+      );
+      canvas.restore();
+    } else {
+      super.render(canvas);
+    }
   }
 }

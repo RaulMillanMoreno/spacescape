@@ -192,9 +192,9 @@ class SpacescapeGame extends FlameGame
       camera.viewport.addAll([
         joystick,
         button,
-        healthBar,
+        // healthBar,
         _playerScore,
-        _playerHealth,
+        // _playerHealth,
       ]);
 
       // Set this to true so that we do not initilize
@@ -271,7 +271,7 @@ class SpacescapeGame extends FlameGame
 
     if (isAttached && _player.isReady) {
       // Update score and health components with latest values.
-      _playerScore.text = 'Score: ${_player.score}';
+      _playerScore.text = 'Money: ${_player.score}';
       _playerHealth.text = 'Health: ${_player.health}%';
 
       /// Display [GameOverMenu] when [Player.health] becomes

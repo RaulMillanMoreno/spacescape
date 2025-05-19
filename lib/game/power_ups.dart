@@ -99,25 +99,25 @@ class Nuke extends PowerUp {
 }
 
 // This power up increases player health by 10.
-class Health extends PowerUp {
-  Health({super.position, super.size});
+// class Health extends PowerUp {
+//   Health({super.position, super.size});
 
-  @override
-  Sprite getSprite() {
-    return PowerUpManager.healthSprite;
-  }
+//   @override
+//   Sprite getSprite() {
+//     return PowerUpManager.healthSprite;
+//   }
 
-  @override
-  void onActivated() {
-    // Register a command to increase player health.
-    final command = Command<Player>(
-      action: (player) {
-        player.increaseHealthBy(10);
-      },
-    );
-    game.addCommand(command);
-  }
-}
+//   @override
+//   void onActivated() {
+//     // Register a command to increase player health.
+//     final command = Command<Player>(
+//       action: (player) {
+//         player.increaseHealthBy(10);
+//       },
+//     );
+//     game.addCommand(command);
+//   }
+// }
 
 // This power up freezes all enemies for some time.
 class Freeze extends PowerUp {
