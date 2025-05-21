@@ -147,10 +147,17 @@ class Player extends SpriteComponent
     super.onCollision(intersectionPoints, other);
 
     if (other is Enemy) {
-      // _currentHealth -= 1; // <-- Comenta esta línea para no perder vida
-      // if (_currentHealth <= 0) {
-      //   die(); // <-- Comenta la muerte del jugador
-      // }
+      if (_shieldActive) {
+        // Si el escudo está activo, no recibe daño
+        print('¡Escudo activo! No se recibe daño.');
+        return;
+      }
+      // Solo recibe daño si el escudo NO está activo
+      _health -= 1; // 1 puntos = 1%
+      print('Vida actual: $_health');
+      if (_health <= 0) {
+        die();
+      }
     }
     // ...otros casos...
   }
@@ -379,5 +386,12 @@ class Player extends SpriteComponent
     _damageBoostActive = true;
     _damageBoostTimer.stop();
     _damageBoostTimer.start();
+  }
+
+  // Llama a este método cuando el jugador muere.
+  void die() {
+    _health = 0;
+    // Puedes añadir aquí efectos, sonidos o animaciones de muerte si lo deseas.
+    // Por ejemplo, podrías pausar el juego o mostrar una pantalla de Game Over.
   }
 }

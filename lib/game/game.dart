@@ -192,9 +192,9 @@ class SpacescapeGame extends FlameGame
       camera.viewport.addAll([
         joystick,
         button,
-        // healthBar,
+        healthBar, // Descomenta esta línea para mostrar la barra de vida
         _playerScore,
-        // _playerHealth,
+        _playerHealth,
       ]);
 
       // Set this to true so that we do not initilize
