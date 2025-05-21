@@ -51,7 +51,7 @@ class AudioPlayerComponent extends Component
         game.buildContext!,
         listen: false,
       ).soundEffects) {
-        FlameAudio.play(filename);
+        FlameAudio.play(filename, volume: 1.0);
       }
     }
   }
