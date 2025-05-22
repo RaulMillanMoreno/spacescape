@@ -147,17 +147,17 @@ class Player extends SpriteComponent
     super.onCollision(intersectionPoints, other);
 
     if (other is Enemy) {
-      if (_shieldActive) {
-        // Si el escudo está activo, no recibe daño
+      if (!_shieldActive) {
+        _health -= 10;
+        print('Vida actual: $_health');
+        if (_health <= 0) {
+          die();
+        }
+      } else {
         print('¡Escudo activo! No se recibe daño.');
-        return;
       }
-      // Solo recibe daño si el escudo NO está activo
-      _health -= 1; // 1 puntos = 1%
-      print('Vida actual: $_health');
-      if (_health <= 0) {
-        die();
-      }
+      // Siempre destruye el enemigo al colisionar
+      other.destroy();
     }
     // ...otros casos...
   }
@@ -276,6 +276,8 @@ class Player extends SpriteComponent
     // Update the current spaceship type of player.
     _setSpaceshipType(playerData.spaceshipType);
   }
+
+  double _lastShotSfx = 0;
 
   void joystickAction() {
     final isDamageBoost = _damageBoostActive;
