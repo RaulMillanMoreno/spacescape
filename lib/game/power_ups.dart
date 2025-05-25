@@ -62,13 +62,13 @@ abstract class PowerUp extends SpriteComponent
     // onActivated method and mark this component to be removed.
     if (other is Player) {
       // Ask audio player to play power up activation effect.
-      game.addCommand(
-        Command<AudioPlayerComponent>(
-          action: (audioPlayer) {
-            audioPlayer.playSfx('powerUp6.ogg');
-          },
-        ),
-      );
+      // game.addCommand(
+      //   Command<AudioPlayerComponent>(
+      //     action: (audioPlayer) {
+      //       audioPlayer.playSfx('powerUp6.ogg');
+      //     },
+      //   ),
+      // );
       onActivated();
       removeFromParent();
     }

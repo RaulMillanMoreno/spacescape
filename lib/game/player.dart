@@ -64,6 +64,9 @@ class Player extends SpriteComponent
   // Timer for auto-firing bullets
   late Timer _autoFireTimer;
 
+  // Timer for thruster particles
+  late Timer _thrusterTimer;
+
   // Holds an object of Random class to generate random numbers.
   final _random = Random();
 
@@ -124,6 +127,31 @@ class Player extends SpriteComponent
         joystickAction();
       },
     );
+
+    _thrusterTimer = Timer(
+      0.1, // cada 0.1 segundos
+      repeat: true,
+      onTick: () {
+        final particleComponent = ParticleSystemComponent(
+          particle: Particle.generate(
+            count: 3,
+            lifespan: 0.07,
+            generator: (i) => AcceleratedParticle(
+              acceleration: getRandomVector(),
+              speed: getRandomVector(),
+              position: (position.clone() + Vector2(0, size.y / 3)),
+              child: CircleParticle(
+                radius: 1,
+                paint: Paint()
+                  ..color =
+                      _speedActive ? const Color(0xFF2196F3) : Colors.white,
+              ),
+            ),
+          ),
+        );
+        game.world.add(particleComponent);
+      },
+    );
   }
 
   @override
@@ -140,6 +168,7 @@ class Player extends SpriteComponent
     );
     add(shape);
     _autoFireTimer.start();
+    _thrusterTimer.start();
   }
 
   @override
@@ -213,6 +242,7 @@ class Player extends SpriteComponent
     _speedTimer.update(dt);
     _damageBoostTimer.update(dt);
     _autoFireTimer.update(dt);
+    _thrusterTimer.update(dt);
 
     double speedMultiplier = _speedActive ? 2.0 : 1.0;
 
@@ -235,8 +265,8 @@ class Player extends SpriteComponent
     // Adds thruster particles.
     final particleComponent = ParticleSystemComponent(
       particle: Particle.generate(
-        count: 10,
-        lifespan: 0.1,
+        count: 3,
+        lifespan: 0.07,
         generator: (i) => AcceleratedParticle(
           acceleration: getRandomVector(),
           speed: getRandomVector(),
@@ -261,8 +291,8 @@ class Player extends SpriteComponent
 
     if (_shieldActive) {
       final paint = Paint()
-        ..color =
-            const Color(0xFF87CEEB).withOpacity(0.5); // Azul cielo translúcido
+        ..color = const Color.fromARGB(255, 46, 176, 205)
+            .withOpacity(0.5); // Azul cielo translúcido
 
       // Dibuja un semicírculo en la parte superior de la nave
       final rect = Rect.fromLTWH(0, 0, size.x, size.y);
@@ -278,6 +308,13 @@ class Player extends SpriteComponent
   }
 
   double _lastShotSfx = 0;
+
+  final List<String> _shotSounds = [
+    'laserSmall_001.ogg',
+    'laserSmall_002.ogg',
+    'laserSmall_003.ogg',
+  ];
+  int _shotSoundIndex = 0;
 
   void joystickAction() {
     final isDamageBoost = _damageBoostActive;
@@ -299,14 +336,21 @@ class Player extends SpriteComponent
     bullet.anchor = Anchor.center;
     game.world.add(bullet);
 
-    // Ask audio player to play bullet fire effect.
-    game.addCommand(
-      Command<AudioPlayerComponent>(
-        action: (audioPlayer) {
-          audioPlayer.playSfx('laserSmall_001.ogg');
-        },
-      ),
-    );
+    // --- CONTROL DE COOLDOWN PARA SONIDO ---
+    // final now = DateTime.now().millisecondsSinceEpoch / 1000.0;
+    // if (now - _lastShotSfx > 0.15) {
+    //   final sound = _shotSounds[_shotSoundIndex];
+    //   game.addCommand(
+    //     Command<AudioPlayerComponent>(
+    //       action: (audioPlayer) {
+    //         audioPlayer.playSfx(sound);
+    //       },
+    //     ),
+    //   );
+    //   _shotSoundIndex = (_shotSoundIndex + 1) % _shotSounds.length;
+    //   _lastShotSfx = now;
+    // }
+    // --- FIN CONTROL DE COOLDOWN ---
 
     // If multiple bullet is on, add two more
     // bullets rotated +-PI/6 radians to first bullet.

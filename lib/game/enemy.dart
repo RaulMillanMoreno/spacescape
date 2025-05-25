@@ -128,16 +128,29 @@ class Enemy extends SpriteComponent
     // El enemigo ya no se destruye aquí al colisionar con el jugador.
   }
 
+  static final List<String> _deathSounds = [
+    'laser1a.ogg',
+    'laser1b.ogg',
+    'laser1c.ogg',
+  ];
+  static int _deathSoundIndex = 0;
+  static double _lastDeathSfx = 0;
+
   // Este método destruirá este enemigo.
   void destroy() {
-    // Pide al reproductor de audio que reproduzca el efecto de destrucción del enemigo.
-    game.addCommand(
-      Command<AudioPlayerComponent>(
-        action: (audioPlayer) {
-          audioPlayer.playSfx('laser1.ogg');
-        },
-      ),
-    );
+    final now = DateTime.now().millisecondsSinceEpoch / 1000.0;
+    if (now - _lastDeathSfx > 0.5) {
+      final sound = _deathSounds[_deathSoundIndex];
+      game.addCommand(
+        Command<AudioPlayerComponent>(
+          action: (audioPlayer) {
+            audioPlayer.playSfx(sound);
+          },
+        ),
+      );
+      _deathSoundIndex = (_deathSoundIndex + 1) % _deathSounds.length;
+      _lastDeathSfx = now;
+    }
 
     removeFromParent();
 
@@ -156,8 +169,8 @@ class Enemy extends SpriteComponent
     // 0.1 segundos y será eliminada del mundo del juego después de eso.
     final particleComponent = ParticleSystemComponent(
       particle: Particle.generate(
-        count: 20,
-        lifespan: 0.1,
+        count: 3, // Antes 20, ahora menos
+        lifespan: 0.07,
         generator: (i) => AcceleratedParticle(
           acceleration: getRandomVector(),
           speed: getRandomVector(),

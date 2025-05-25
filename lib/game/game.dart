@@ -212,7 +212,7 @@ class SpacescapeGame extends FlameGame
       final playerData = Provider.of<PlayerData>(buildContext!, listen: false);
       _player.setPlayerData(playerData);
     }
-    _audioPlayerComponent.playBgm('9. Space Invaders.wav');
+    _audioPlayerComponent.playBgm('fight-for-the-future-336841.ogg');
     super.onAttach();
   }
 

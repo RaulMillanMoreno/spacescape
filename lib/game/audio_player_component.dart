@@ -14,8 +14,12 @@ class AudioPlayerComponent extends Component
 
     await FlameAudio.audioCache.loadAll([
       'laser1.ogg',
+      'laser1a.ogg',
+      'laser1b.ogg',
+      'laser1c.ogg',
       'powerUp6.ogg',
       'laserSmall_001.ogg',
+      'fight-for-the-future-336841.ogg',
     ]);
 
     try {
