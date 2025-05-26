@@ -35,53 +35,53 @@ class Upgrade {
     return baseValue * level;
   }
 
-  static const Map<UpgradeType, Upgrade> upgrades = {
+static const Map<UpgradeType, Upgrade> upgrades = {
     UpgradeType.damage: Upgrade(
       name: 'Daño',
       description: 'Aumenta el daño de las balas',
       baseValue: 10,
-      baseCost: 1,  // Cambiado a 1
-      scaling: 1.0,  // Cambiado a 1.0 para que siempre cueste 1
+      baseCost: 1,
+      scaling: 1.0,
       maxLevel: 5,
     ),
     UpgradeType.health: Upgrade(
       name: 'Vida',
       description: 'Aumenta la vida máxima',
-      baseValue: 25,
-      baseCost: 1,  // Cambiado a 1
-      scaling: 1.0,  // Cambiado a 1.0 para que siempre cueste 1
+      baseValue: 50, // Aumentado para ser más notable
+      baseCost: 1,
+      scaling: 1.0,
       maxLevel: 4,
     ),
     UpgradeType.speed: Upgrade(
       name: 'Velocidad',
       description: 'Aumenta la velocidad de la nave',
-      baseValue: 50,
-      baseCost: 1,  // Cambiado a 1
-      scaling: 1.0,  // Cambiado a 1.0 para que siempre cueste 1
+      baseValue: 100, // Aumentado para ser más notable
+      baseCost: 1,
+      scaling: 1.0,
       maxLevel: 3,
     ),
     UpgradeType.bulletSpeed: Upgrade(
       name: 'Cadencia',
       description: 'Aumenta la velocidad de disparo',
-      baseValue: 15,
-      baseCost: 1,  // Cambiado a 1
-      scaling: 1.0,  // Cambiado a 1.0 para que siempre cueste 1
+      baseValue: 30, // Aumentado para ser más notable
+      baseCost: 1,
+      scaling: 1.0,
       maxLevel: 4,
     ),
     UpgradeType.powerUpDuration: Upgrade(
       name: 'Duración Power-Ups',
       description: 'Aumenta la duración de los power-ups',
-      baseValue: 2,
-      baseCost: 1,  // Cambiado a 1
-      scaling: 1.0,  // Cambiado a 1.0 para que siempre cueste 1
+      baseValue: 5, // Aumentado para ser más notable
+      baseCost: 1,
+      scaling: 1.0,
       maxLevel: 3,
     ),
     UpgradeType.moneyMultiplier: Upgrade(
       name: 'Multiplicador de dinero',
       description: 'Aumenta el dinero ganado',
-      baseValue: 10,
-      baseCost: 1,  // Cambiado a 1
-      scaling: 1.0,  // Cambiado a 1.0 para que siempre cueste 1
+      baseValue: 20, // Aumentado para ser más notable
+      baseCost: 1,
+      scaling: 1.0,
       maxLevel: 3,
     ),
   };
@@ -89,6 +89,8 @@ class Upgrade {
 
 class PlayerUpgrades extends ChangeNotifier {
   final Map<UpgradeType, int> upgradeLevels = {};
+
+  
 
   int getUpgradeLevel(UpgradeType type) {
     return upgradeLevels[type] ?? 0;
@@ -111,7 +113,13 @@ class PlayerUpgrades extends ChangeNotifier {
     if (playerData.money >= cost && currentLevel < upgrade.maxLevel) {
       playerData.money -= cost;
       upgradeLevels[type] = currentLevel + 1;
+      
+      // Notificar cambios
       notifyListeners();
+      playerData.notifyListeners();
+      
+      // Guardar cambios
+      playerData.save();
     }
   }
 }

@@ -327,32 +327,32 @@ void _applyUpgrades() {
     // Aplicar mejoras de daño
     final damageLevel = _playerData!.upgrades.getUpgradeLevel(UpgradeType.damage);
     if (damageLevel > 0) {
-        _damageMultiplier = 1.0 + (damageLevel * 0.2); // +20% por nivel
+        _damageMultiplier = 1.0 + (damageLevel * 0.5); // +50% por nivel
     }
 
     // Aplicar mejoras de vida
     final healthLevel = _playerData!.upgrades.getUpgradeLevel(UpgradeType.health);
     if (healthLevel > 0) {
-        _healthMultiplier = 1.0 + (healthLevel * 0.25); // +25% por nivel
+        _healthMultiplier = 1.0 + (healthLevel * 0.5); // +50% por nivel
         _health = (100 * _healthMultiplier).round();
     }
 
     // Aplicar mejoras de velocidad
     final speedLevel = _playerData!.upgrades.getUpgradeLevel(UpgradeType.speed);
     if (speedLevel > 0) {
-        _speedMultiplier = 1.0 + (speedLevel * 0.15); // +15% por nivel
+        _speedMultiplier = 1.0 + (speedLevel * 0.3); // +30% por nivel
     }
 
     // Aplicar mejoras de duración de power-ups
     final powerUpLevel = _playerData!.upgrades.getUpgradeLevel(UpgradeType.powerUpDuration);
     if (powerUpLevel > 0) {
-        _powerUpDurationMultiplier = 1.0 + (powerUpLevel * 0.3); // +30% por nivel
+        _powerUpDurationMultiplier = 1.0 + (powerUpLevel * 0.5); // +50% por nivel
     }
 
     // Aplicar mejoras de multiplicador de dinero
     final moneyLevel = _playerData!.upgrades.getUpgradeLevel(UpgradeType.moneyMultiplier);
     if (moneyLevel > 0) {
-        _moneyMultiplier = 1.0 + (moneyLevel * 0.2); // +20% por nivel
+        _moneyMultiplier = 1.0 + (moneyLevel * 0.5); // +50% por nivel
     }
 }
 
