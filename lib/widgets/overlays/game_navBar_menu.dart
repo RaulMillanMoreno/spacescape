@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 typedef NavTapCallback = void Function(int index);
 
 class BottomNavBar extends StatelessWidget {
-  final int currentIndex;
+  final int? currentIndex;
   final NavTapCallback onTap;
 
   const BottomNavBar({
-    Key? key,
+    super.key,
     required this.currentIndex,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,6 @@ class BottomNavBar extends StatelessWidget {
 
   Widget _buildNavItem(int index, Widget icon, String label) {
     final isSelected = currentIndex == index;
-    
     return InkWell(
       onTap: () => onTap(index),
       child: Container(

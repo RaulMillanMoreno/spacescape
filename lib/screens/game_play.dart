@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:spacescape/widgets/overlays/game_over_menu.dart';
 
 import '../game/game.dart';
-import '../widgets/overlays/game_navBar_menu.dart'; // Importa el widget de barra de navegación
+import '../widgets/overlays/game_navBar_menu.dart'; // tu BottomNavBar
 import '../widgets/overlays/pause_button.dart';
 import '../widgets/overlays/pause_menu.dart';
 
@@ -15,7 +15,7 @@ class GamePlay extends StatefulWidget {
 }
 
 class _GamePlayState extends State<GamePlay> {
-  int _currentIndex = 0;
+  int? _currentIndex; // <- ahora es nullable
   late final SpacescapeGame _game;
 
   @override
@@ -26,35 +26,34 @@ class _GamePlayState extends State<GamePlay> {
 
   void _onNavTap(int index) {
     setState(() => _currentIndex = index);
-    
-    // Gestión de overlays según la tab seleccionada
-    if (index == 0) {
-      // Modo juego - Solo muestra los controles del juego
-      _game.resumeEngine();
-      _game.overlays.remove('ShopMenu');
-      _game.overlays.remove('StatsMenu');
-      _game.overlays.remove('InventoryMenu');
-    } else {
-      // Pausa el juego cuando se navega a otras pestañas
-      _game.pauseEngine();
-      
-      // Limpia overlays anteriores
-      _game.overlays.remove('ShopMenu');
-      _game.overlays.remove('StatsMenu');
-      _game.overlays.remove('InventoryMenu');
-      
-      // Activa el overlay correspondiente
-      switch (index) {
-        case 1:
-          _game.overlays.add('ShopMenu');
-          break;
-        case 2:
-          _game.overlays.add('StatsMenu');
-          break;
-        case 3:
-          _game.overlays.add('InventoryMenu');
-          break;
-      }
+
+    // NO pausar el juego
+    // Mostramos el modal correspondiente según el índice
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.black.withOpacity(0.9),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => _getPanelForIndex(index),
+    ).then((_) {
+      // Al cerrar el modal, se deselecciona la barra
+      setState(() => _currentIndex = null);
+    });
+  }
+
+  Widget _getPanelForIndex(int index) {
+    switch (index) {
+      case 0:
+        return _buildMenuOverlay('Tienda');
+      case 1:
+        return _buildMenuOverlay('Mejoras');
+      case 2:
+        return _buildMenuOverlay('Recruit');
+      case 3:
+        return _buildMenuOverlay('Settings');
+      default:
+        return const SizedBox.shrink();
     }
   }
 
@@ -67,18 +66,12 @@ class _GamePlayState extends State<GamePlay> {
           game: _game,
           initialActiveOverlays: const [PauseButton.id],
           overlayBuilderMap: {
-            PauseButton.id: (BuildContext context, SpacescapeGame game) => 
+            PauseButton.id: (BuildContext context, SpacescapeGame game) =>
                 PauseButton(game: game),
-            PauseMenu.id: (BuildContext context, SpacescapeGame game) => 
+            PauseMenu.id: (BuildContext context, SpacescapeGame game) =>
                 PauseMenu(game: game),
-            GameOverMenu.id: (BuildContext context, SpacescapeGame game) => 
+            GameOverMenu.id: (BuildContext context, SpacescapeGame game) =>
                 GameOverMenu(game: game),
-            'ShopMenu': (BuildContext context, SpacescapeGame game) => 
-                _buildMenuOverlay('Tienda'),
-            'StatsMenu': (BuildContext context, SpacescapeGame game) => 
-                _buildMenuOverlay('Estadísticas'),
-            'InventoryMenu': (BuildContext context, SpacescapeGame game) => 
-                _buildMenuOverlay('Inventario'),
           },
         ),
       ),
@@ -88,30 +81,38 @@ class _GamePlayState extends State<GamePlay> {
       ),
     );
   }
-  
-  // Widget auxiliar para crear overlays de menú
+
+  // Panel simple para las opciones de compra/mejoras/etc
   Widget _buildMenuOverlay(String title) {
-    return Container(
-      color: Colors.black.withOpacity(0.7),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white, 
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40,
+            height: 5,
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.white24,
+              borderRadius: BorderRadius.circular(8),
             ),
-            const SizedBox(height: 20),
-            Text(
-              'Contenido de $title',
-              style: const TextStyle(color: Colors.white, fontSize: 18),
+          ),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.amber,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Aquí irá el contenido de $title...',
+            style: const TextStyle(color: Colors.white, fontSize: 18),
+          ),
+          const SizedBox(height: 20),
+        ],
       ),
     );
   }
