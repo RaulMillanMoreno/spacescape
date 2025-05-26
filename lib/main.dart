@@ -2,6 +2,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
 
 import 'models/settings.dart';
 import 'screens/main_menu.dart';
@@ -10,6 +11,10 @@ import 'models/spaceship_details.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   // This opens the app in fullscreen mode.
   await Flame.device.fullScreen();

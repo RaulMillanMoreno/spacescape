@@ -9,7 +9,7 @@ typedef PowerUpMap
     = Map<PowerUpTypes, PowerUp Function(Vector2 position, Vector2 size)>;
 
 // Represents the types of power up we have to offer.
-enum PowerUpTypes { /*health,*/ freeze, nuke, multiFire, shield, speed, damage }
+enum PowerUpTypes { health, freeze, nuke, multiFire, shield, speed, damage }
 
 // This class/component is responsible for spawning random power ups
 // at random locations in the game world.
@@ -27,7 +27,7 @@ class PowerUpManager extends Component with HasGameReference<SpacescapeGame> {
   // Storing these static sprites so that
   // they stay alive across multiple restarts.
   static late Sprite nukeSprite;
-  // static late Sprite healthSprite;
+  static late Sprite healthSprite;
   static late Sprite freezeSprite;
   static late Sprite multiFireSprite;
   static late Sprite shieldSprite;
@@ -36,8 +36,8 @@ class PowerUpManager extends Component with HasGameReference<SpacescapeGame> {
 
   // A private static map which stores a generator function for each power up.
   static final PowerUpMap _powerUpMap = {
-    // PowerUpTypes.health: (position, size) =>
-    //     Health(position: position, size: size),
+    PowerUpTypes.health: (position, size) =>
+        Health(position: position, size: size),
     PowerUpTypes.freeze: (position, size) =>
         Freeze(position: position, size: size),
     PowerUpTypes.nuke: (position, size) => Nuke(position: position, size: size),
@@ -104,7 +104,7 @@ class PowerUpManager extends Component with HasGameReference<SpacescapeGame> {
     // Start the spawn timer as soon as this component is mounted.
     _spawnTimer.start();
 
-    // healthSprite = Sprite(game.images.fromCache('icon_plusSmall.png'));
+    healthSprite = Sprite(game.images.fromCache('icon_plusSmall.png'));
     nukeSprite = Sprite(game.images.fromCache('nuke.png'));
     freezeSprite = Sprite(game.images.fromCache('freeze.png'));
     multiFireSprite = Sprite(game.images.fromCache('multi_fire.png'));
