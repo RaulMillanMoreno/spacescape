@@ -7,6 +7,7 @@ import 'package:flame/components.dart';
 // import 'package:flame_noise/flame_noise.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:spacescape/models/upgrade_system.dart';
 
 import '../models/player_data.dart';
 import '../models/spaceship_details.dart';
@@ -69,6 +70,13 @@ class Player extends SpriteComponent
 
   // Holds an object of Random class to generate random numbers.
   final _random = Random();
+
+  // Multiplicadores de mejoras
+  double _damageMultiplier = 1.0;
+  double _healthMultiplier = 1.0;
+  double _speedMultiplier = 1.0;
+  double _powerUpDurationMultiplier = 1.0;
+  double _moneyMultiplier = 1.0;
 
   // This method generates a random vector such that
   // its x component lies between [-100 to 100] and
@@ -244,12 +252,8 @@ class Player extends SpriteComponent
     _autoFireTimer.update(dt);
     _thrusterTimer.update(dt);
 
-    double speedMultiplier = _speedActive ? 2.0 : 1.0;
+     double speedMultiplier = (_speedActive ? 2.0 : 1.0) * _speedMultiplier;
 
-    // Increment the current position of player by (speed * delta time) along moveDirection.
-    // Delta time is the time elapsed since last update. For devices with higher frame rates, delta time
-    // will be smaller and for devices with lower frame rates, it will be larger. Multiplying speed with
-    // delta time ensure that player speed remains same irrespective of the device FPS.
     if (!joystick.delta.isZero()) {
       position.add(
           joystick.relativeDelta * _spaceship.speed * speedMultiplier * dt);
@@ -301,11 +305,56 @@ class Player extends SpriteComponent
     }
   }
 
-  void setPlayerData(PlayerData playerData) {
+void setPlayerData(PlayerData playerData) {
     _playerData = playerData;
     // Update the current spaceship type of player.
     _setSpaceshipType(playerData.spaceshipType);
-  }
+    
+    // Aplicar las mejoras
+    _applyUpgrades();
+}
+
+void _applyUpgrades() {
+    if (_playerData == null) return;
+
+    // Reiniciar multiplicadores
+    _damageMultiplier = 1.0;
+    _healthMultiplier = 1.0;
+    _speedMultiplier = 1.0;
+    _powerUpDurationMultiplier = 1.0;
+    _moneyMultiplier = 1.0;
+
+    // Aplicar mejoras de daño
+    final damageLevel = _playerData!.upgrades.getUpgradeLevel(UpgradeType.damage);
+    if (damageLevel > 0) {
+        _damageMultiplier = 1.0 + (damageLevel * 0.2); // +20% por nivel
+    }
+
+    // Aplicar mejoras de vida
+    final healthLevel = _playerData!.upgrades.getUpgradeLevel(UpgradeType.health);
+    if (healthLevel > 0) {
+        _healthMultiplier = 1.0 + (healthLevel * 0.25); // +25% por nivel
+        _health = (100 * _healthMultiplier).round();
+    }
+
+    // Aplicar mejoras de velocidad
+    final speedLevel = _playerData!.upgrades.getUpgradeLevel(UpgradeType.speed);
+    if (speedLevel > 0) {
+        _speedMultiplier = 1.0 + (speedLevel * 0.15); // +15% por nivel
+    }
+
+    // Aplicar mejoras de duración de power-ups
+    final powerUpLevel = _playerData!.upgrades.getUpgradeLevel(UpgradeType.powerUpDuration);
+    if (powerUpLevel > 0) {
+        _powerUpDurationMultiplier = 1.0 + (powerUpLevel * 0.3); // +30% por nivel
+    }
+
+    // Aplicar mejoras de multiplicador de dinero
+    final moneyLevel = _playerData!.upgrades.getUpgradeLevel(UpgradeType.moneyMultiplier);
+    if (moneyLevel > 0) {
+        _moneyMultiplier = 1.0 + (moneyLevel * 0.2); // +20% por nivel
+    }
+}
 
   double _lastShotSfx = 0;
 
@@ -329,7 +378,7 @@ class Player extends SpriteComponent
       size: Vector2(64, 64),
       position: position.clone(),
       level: _spaceship.level,
-      damageMultiplier: isDamageBoost ? 3 : 1,
+      damageMultiplier: isDamageBoost ? (3 * _damageMultiplier).round() : _damageMultiplier.round(),
       customPaint: paint,
     );
 
@@ -373,13 +422,14 @@ class Player extends SpriteComponent
 
   // Adds given points to player score
   /// and also add it to [PlayerData.money].
-  void addToScore(int points) {
+void addToScore(int points) {
     _playerData!.currentScore += points;
-    _playerData!.money += points;
+    _playerData!.money += (points * _moneyMultiplier).round();
 
     // Saves player data to disk.
     _playerData!.save();
-  }
+}
+  
 
   // Increases health by give amount.
   void increaseHealthBy(int points) {
@@ -411,28 +461,50 @@ class Player extends SpriteComponent
   void shootMultipleBullets() {
     _shootMultipleBullets = true;
     _powerUpTimer.stop();
+    _powerUpTimer = Timer(
+      4 * _powerUpDurationMultiplier,
+      onTick: () {
+        _shootMultipleBullets = false;
+      },
+    );
     _powerUpTimer.start();
-  }
+}
 
-  // Activates the shield for 10 seconds.
-  void activateShield() {
+void activateShield() {
     _shieldActive = true;
     _shieldTimer.stop();
+    _shieldTimer = Timer(
+      10 * _powerUpDurationMultiplier,
+      onTick: () {
+        _shieldActive = false;
+      },
+    );
     _shieldTimer.start();
-  }
+}
 
-  // Activates the speed power-up for 5 seconds.
-  void activateSpeed() {
+void activateSpeed() {
     _speedActive = true;
     _speedTimer.stop();
+    _speedTimer = Timer(
+      5 * _powerUpDurationMultiplier,
+      onTick: () {
+        _speedActive = false;
+      },
+    );
     _speedTimer.start();
-  }
+}
 
-  void activateDamageBoost() {
+void activateDamageBoost() {
     _damageBoostActive = true;
     _damageBoostTimer.stop();
+    _damageBoostTimer = Timer(
+      10 * _powerUpDurationMultiplier,
+      onTick: () {
+        _damageBoostActive = false;
+      },
+    );
     _damageBoostTimer.start();
-  }
+}
 
   // Llama a este método cuando el jugador muere.
   void die() {

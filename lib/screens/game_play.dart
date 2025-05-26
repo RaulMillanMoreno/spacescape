@@ -1,11 +1,13 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:spacescape/widgets/overlays/game_over_menu.dart';
+import 'package:spacescape/widgets/overlays/upgrades_menu.dart';
 
 import '../game/game.dart';
 import '../widgets/overlays/game_navBar_menu.dart'; // tu BottomNavBar
 import '../widgets/overlays/pause_button.dart';
 import '../widgets/overlays/pause_menu.dart';
+import '../widgets/overlays/on_game_settings.dart';
 
 class GamePlay extends StatefulWidget {
   const GamePlay({super.key});
@@ -27,7 +29,8 @@ class _GamePlayState extends State<GamePlay> {
   void _onNavTap(int index) {
     setState(() => _currentIndex = index);
 
-    // NO pausar el juego
+    _game.pauseEngine();
+
     // Mostramos el modal correspondiente según el índice
     showModalBottomSheet(
       context: context,
@@ -39,6 +42,7 @@ class _GamePlayState extends State<GamePlay> {
     ).then((_) {
       // Al cerrar el modal, se deselecciona la barra
       setState(() => _currentIndex = null);
+      _game.resumeEngine();
     });
   }
 
@@ -47,11 +51,11 @@ class _GamePlayState extends State<GamePlay> {
       case 0:
         return _buildMenuOverlay('Tienda');
       case 1:
-        return _buildMenuOverlay('Mejoras');
+        return const UpgradesMenu();
       case 2:
         return _buildMenuOverlay('Recruit');
       case 3:
-        return _buildMenuOverlay('Settings');
+        return const SettingsBottomSheet();
       default:
         return const SizedBox.shrink();
     }

@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
+import 'package:spacescape/models/upgrade_system.dart';
 
 import 'spaceship_details.dart';
 
@@ -9,6 +10,7 @@ part 'player_data.g.dart';
 // might want to store for tracking player progress.
 @HiveType(typeId: 0)
 class PlayerData extends ChangeNotifier with HiveObjectMixin {
+  final PlayerUpgrades upgrades = PlayerUpgrades();
   static const String playerDataBox = 'PlayerDataBox';
   static const String playerDataKey = 'PlayerData';
 
