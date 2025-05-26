@@ -145,11 +145,14 @@ class Enemy extends SpriteComponent
   ];
   static int _deathSoundIndex = 0;
   static double _lastDeathSfx = 0;
+  static double _lastSoundFrame = -1;
 
   // Este método destruirá este enemigo.
   void destroy() {
     final now = DateTime.now().millisecondsSinceEpoch / 1000.0;
-    if (now - _lastDeathSfx > 0.5) {
+    final currentFrame = game
+        .currentTime(); // Usa el tiempo del juego si lo tienes, si no, usa now
+    if (_lastSoundFrame != currentFrame && now - _lastDeathSfx > 0.7) {
       final sound = _deathSounds[_deathSoundIndex];
       game.addCommand(
         Command<AudioPlayerComponent>(
@@ -160,6 +163,7 @@ class Enemy extends SpriteComponent
       );
       _deathSoundIndex = (_deathSoundIndex + 1) % _deathSounds.length;
       _lastDeathSfx = now;
+      _lastSoundFrame = currentFrame;
     }
 
     removeFromParent();
