@@ -47,6 +47,8 @@ class Enemy extends SpriteComponent
     ),
   );
 
+  ColorFilter? _colorFilter;
+
   // Este método genera un vector aleatorio con su ángulo
   // entre 0 y 360 grados.
   Vector2 getRandomVector() {
@@ -87,6 +89,14 @@ class Enemy extends SpriteComponent
     // Si este enemigo puede moverse horizontalmente, aleatoriza la dirección de movimiento.
     if (enemyData.hMove) {
       moveDirection = getRandomDirection();
+    }
+
+    if (_hitPoints >= 30) {
+      _colorFilter = const ColorFilter.mode(Colors.red, BlendMode.modulate);
+    } else if (_hitPoints >= 20) {
+      _colorFilter = const ColorFilter.mode(Colors.yellow, BlendMode.modulate);
+    } else {
+      _colorFilter = const ColorFilter.mode(Colors.green, BlendMode.modulate);
     }
   }
 
@@ -219,5 +229,22 @@ class Enemy extends SpriteComponent
     _speed = 0;
     _freezeTimer.stop();
     _freezeTimer.start();
+  }
+
+  @override
+  void render(Canvas canvas) {
+    if (_colorFilter != null) {
+      Paint paint = Paint()..colorFilter = _colorFilter!;
+      canvas.save();
+      canvas.drawImageRect(
+        sprite!.image,
+        sprite!.srcPosition & sprite!.srcSize,
+        size.toRect(),
+        paint,
+      );
+      canvas.restore();
+    } else {
+      super.render(canvas);
+    }
   }
 }

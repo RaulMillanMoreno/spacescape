@@ -36,7 +36,7 @@ class MainMenu extends StatelessWidget {
 
             // Play button.
             SizedBox(
-              width: MediaQuery.of(context).size.width / 3,
+              width: MediaQuery.of(context).size.width / 2,
               child: ElevatedButton(
                 onPressed: () {
                   // Push and replace current screen (i.e MainMenu) with
@@ -53,7 +53,7 @@ class MainMenu extends StatelessWidget {
 
             // Settings button.
             SizedBox(
-              width: MediaQuery.of(context).size.width / 3,
+              width: MediaQuery.of(context).size.width / 2,
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).push(
